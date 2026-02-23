@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>פנקס הערות</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f0ece4;
+    --surface: #faf8f4;
+    --border: #d4cfc6;
+    --accent: #3d5a80;
+    --accent2: #e07a5f;
+    --text: #2c2c2c;
+    --text-light: #888;
+    --shadow: 0 2px 12px rgba(0,0,0,0.08);
+    --highlight-bg: #fff9e6;
+    --highlight-border: #f4c244;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--text);
+    padding: 32px 16px;
+  }
+
+  .app-container {
+    max-width: 860px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 36px;
+  }
+
+  header h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+
+  header p {
+    color: var(--text-light);
+    font-size: 0.95rem;
+    margin-top: 6px;
+  }
+
+  .add-form {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 24px;
+    box-shadow: var(--shadow);
+    margin-bottom: 32px;
+  }
+
+  .form-row {
+    margin-bottom: 14px;
+  }
+
+  label {
+    display: block;
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  input[type="text"], textarea {
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'Heebo', sans-serif;
+    font-size: 1rem;
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    resize: vertical;
+    direction: rtl;
+  }
+
+  input[type="text"]:focus, textarea:focus {
+    border-color: var(--accent);
+  }
+
+  textarea { min-height: 100px; }
+
+  .form-inline {
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+    flex-direction: row-reverse;
+  }
+
+  .form-inline .form-row { margin-bottom: 0; }
+
+  .form-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    margin-top: 18px;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    font-family: 'Heebo', sans-serif;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: all 0.18s;
+  }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #fff;
+  }
+  .btn-primary:hover { background: #2d4a6e; transform: translateY(-1px); }
+
+  .entries-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+
+  .entry-card {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: var(--shadow);
+    transition: all 0.2s;
+    position: relative;
+  }
+
+  .entry-card.highlighted {
+    background: var(--highlight-bg);
+    border-color: var(--highlight-border);
+  }
+
+  .entry-card:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 18px rgba(0,0,0,0.1);
+  }
+
+  .entry-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 8px;
+  }
+
+  .entry-subject {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--accent);
+    flex: 1;
+  }
+
+  .entry-content {
+    font-size: 0.97rem;
+    line-height: 1.6;
+    color: var(--text);
+    white-space: pre-wrap;
+  }
+
+  .entry-actions {
+    display: flex;
+    gap: 6px;
+  }
+
+  .icon-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    border: 1.5px solid var(--border);
+    background: var(--bg);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    transition: all 0.15s;
+    color: var(--text-light);
+  }
+
+  .icon-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+  .icon-btn.highlight-btn:hover { background: #f4c244; color: #333; border-color: #f4c244; }
+  .icon-btn.delete-btn:hover { background: #e07a5f; color: #fff; border-color: #e07a5f; }
+
+  .icon-btn.active-highlight { background: #f4c244; color: #333; border-color: #f4c244; }
+
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #222;
+    color: #fff;
+    padding: 10px 22px;
+    border-radius: 50px;
+    font-size: 0.9rem;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 999;
+    pointer-events: none;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .empty-state {
+    text-align: center;
+    color: var(--text-light);
+    padding: 48px 0;
+    font-size: 1rem;
+  }
+  .empty-state .icon { font-size: 2.5rem; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<div class="app-container">
+  <header>
+    <h1>📋 פנקס הערות</h1>
+    <p>שמור נושאים ותכנים — הכל נשמר אוטומטית</p>
+  </header>
+
+  <div class="add-form">
+    <div class="form-inline">
+      <div class="form-row" style="flex:0 0 220px;">
+        <label>נושא</label>
+        <input type="text" id="subjectInput" placeholder="הכנס נושא...">
+      </div>
+      <div class="form-row" style="flex:1;">
+        <label>תוכן</label>
+        <input type="text" id="contentInput" placeholder="הכנס תוכן...">
+      </div>
+      <div style="display:flex;align-items:flex-end;padding-bottom:2px;">
+        <button class="btn btn-primary" onclick="addEntry()">➕ הוסף</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="entries-list" id="entriesList">
+    <div class="empty-state">
+      <div class="icon">📝</div>
+      <div>אין רשומות עדיין. הוסף את הראשונה!</div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  let entries = [];
+
+  function loadEntries() {
+    try {
+      const saved = localStorage.getItem('notepad_entries');
+      if (saved) entries = JSON.parse(saved);
+    } catch(e) { entries = []; }
+    renderEntries();
+  }
+
+  function saveEntries() {
+    localStorage.setItem('notepad_entries', JSON.stringify(entries));
+  }
+
+  function addEntry() {
+    const subject = document.getElementById('subjectInput').value.trim();
+    const content = document.getElementById('contentInput').value.trim();
+    if (!subject && !content) { showToast('אנא הכנס נושא או תוכן'); return; }
+    entries.unshift({ id: Date.now(), subject, content, highlighted: false });
+    saveEntries();
+    renderEntries();
+    document.getElementById('subjectInput').value = '';
+    document.getElementById('contentInput').value = '';
+    showToast('✅ נשמר בהצלחה!');
+  }
+
+  function copyEntry(id) {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    const text = `${entry.subject ? entry.subject + '\n' : ''}${entry.content}`;
+    navigator.clipboard.writeText(text).then(() => showToast('📋 הועתק ללוח!'));
+  }
+
+  function toggleHighlight(id) {
+    const entry = entries.find(e => e.id === id);
+    if (!entry) return;
+    entry.highlighted = !entry.highlighted;
+    saveEntries();
+    renderEntries();
+  }
+
+  function deleteEntry(id) {
+    entries = entries.filter(e => e.id !== id);
+    saveEntries();
+    renderEntries();
+    showToast('🗑️ נמחק');
+  }
+
+  function renderEntries() {
+    const list = document.getElementById('entriesList');
+    if (entries.length === 0) {
+      list.innerHTML = `<div class="empty-state"><div class="icon">📝</div><div>אין רשומות עדיין. הוסף את הראשונה!</div></div>`;
+      return;
+    }
+    list.innerHTML = entries.map(entry => `
+      <div class="entry-card ${entry.highlighted ? 'highlighted' : ''}">
+        <div class="entry-header">
+          <div class="entry-subject">${escapeHtml(entry.subject) || '(ללא נושא)'}</div>
+          <div class="entry-actions">
+            <button class="icon-btn" title="העתק" onclick="copyEntry(${entry.id})">📋</button>
+            <button class="icon-btn highlight-btn ${entry.highlighted ? 'active-highlight' : ''}" title="סמן" onclick="toggleHighlight(${entry.id})">🌟</button>
+            <button class="icon-btn delete-btn" title="מחק" onclick="deleteEntry(${entry.id})">🗑️</button>
+          </div>
+        </div>
+        ${entry.content ? `<div class="entry-content">${escapeHtml(entry.content)}</div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2200);
+  }
+
+  document.getElementById('subjectInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') document.getElementById('contentInput').focus();
+  });
+
+  loadEntries();
+</script>
+</body>
+</html>
